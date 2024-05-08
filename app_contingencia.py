@@ -10,7 +10,6 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-import missingno
 import warnings
 import openpyxl
 from streamlit_folium import folium_static
