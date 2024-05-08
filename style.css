@@ -1,0 +1,41 @@
+/* Logo */
+/* Adapted from Zachary Blackwood */
+[data-testid="stSidebar"] {
+  background-image: url('../app1_herpetofauna/img/logo.png');
+  background-size: 600px;
+  background-repeat: no-repeat;
+  background-position: 4px 20px;
+  background-color: #e6e5e5;
+  align-content: center;
+  color: black;
+              }
+                
+[data-testid="stFileUploader"] {
+  background-color: #a5a7a4;
+  font-size:medium;
+  padding: 20px 20px 20px 20px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  color: rgb(0, 0, 6);
+} 
+
+[data-testid="metric-container"] {
+  background-color: #f5f5f5;
+  font-size:medium;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  font-style: italic;
+  color: rgb(67, 67, 72);
+  text-align: center;
+  border: 1px solid #000000;
+  border-radius: 10px;
+  padding: 10px 10px 0px 10px;
+} 
+
+[data-testid="stImage"] {
+  display: block;
+  margin: auto;
+  
+  }
+
+footer {
+  visibility: hidden;
+}
