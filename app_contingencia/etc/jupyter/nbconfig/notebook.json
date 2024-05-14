@@ -1,6 +1,0 @@
-{
-  "load_extensions": {
-    "arcgis/extension": true,
-    "jupyter-js-widgets/extension": true
-  }
-}
