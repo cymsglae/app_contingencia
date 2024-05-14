@@ -194,7 +194,7 @@ with open('style.css') as f:
 logo = Image.open('logo.png')
 st.sidebar.image(logo, width=150,)
 
-st.title('QAQC Encuesta Contingencia - MSB V2.0 ')
+st.title('QAQC Encuesta Contingencia - MSB V2.0 - Nuevo Formato ')
 st.sidebar.header('`Version 1.0`')
 
 st.text('Aplicacion web para la autogestión del QAQC para la encuesta de Contingencia (Todas las especialidades necesarias.)')
