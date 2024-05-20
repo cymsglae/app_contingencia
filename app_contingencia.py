@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import warnings
 import openpyxl
+import altair as alt
 from streamlit_folium import folium_static
 from shapely.geometry import Point
 from branca.element import Figure, Template, MacroElement
@@ -225,14 +226,10 @@ nombre_hoja = 'Plantilla_Contingencia'
 numero_campos_masto = 41
 
 if uploaded_file:
-    
-
     xls = pd.ExcelFile(uploaded_file)
     sheets = xls.sheet_names  # see all the sheets in your file
-    #sheets_pd = pd.DataFrame(sheets)
-    
-    #st.sidebar.dataframe(sheets_pd.values[1:])
-
+    #sheets_pd = pd.DataFrame(sheets)    
+    #st.sidebar.dataframe(sheets_pd.values[1:])    
     df = pd.read_excel(uploaded_file, engine='openpyxl', sheet_name=nombre_hoja, parse_dates=['fecha_evaluacion'])
     df_especie = (pd.read_excel(uploaded_file, engine='openpyxl', sheet_name='AAQ_MSB_Contingencia_Fauna__0')).shape[0]
     ##Crear Dataframe Sin Registro en el campo observacion
@@ -240,6 +237,8 @@ if uploaded_file:
     ##Funcion para obtener valor unico de componente biologico
     df_inicial = df.copy()
     especialidad_unica = componente_biologico_unico(df,'componente_biologico')
+    conteo_df = df.groupby('componente_biologico').size().reset_index(name='conteo')
+
     ##Conteo de catalogos que se estan leyendo para mostrar en sidebar
     df_hojas = leer_excel_y_crear_dataframe(xls)
     st.sidebar.write("Información de las hojas del archivo Excel:")
@@ -260,8 +259,9 @@ if uploaded_file:
     registros_fuera = gdf[~gdf['dentro']]
     ##Creacion dataframes para comparar con controles
     ##Motivo intervencion
-    df_mot_interv_archivo = df[['componente_biologico','motivo_intervencion']]
-    df_mot_interv_archivo.columns = ['comp_bio','motivo_intervencion']
+    df_mot_interv_archivo = df[['motivo_intervencion']]
+    df_localidad_archivo = df[['componente_localidad']]
+    
     ##Metodologia
     #df_metodologia_archivo = df[['componente_biologico','metodologia']]
     #df_metodologia_archivo.columns = ['comp_bio','metodologia']
@@ -291,8 +291,7 @@ if uploaded_file:
     #df_1 = df[df.metodologia == 'Busqueda por Encuentros Visuales (VES)']
     #df_ves = df_1[['metodologia', 'este_registro', 'norte_registro']]
     #   
-    conteo_campos_mastofauna = len(df_inicial.columns)
-    
+    conteo_campos_mastofauna = len(df_inicial.columns)    
     
     ###Dataframe de abundancia de Sexo
     df_abundancia_sexo = df[['n_macho','n_hembra_prenada_gravida','n_hembra_no_prenada_gravida','n_indeterminado_sexo']]
@@ -317,35 +316,34 @@ if uploaded_file:
     with tab1:
         # Primera fila
         st.markdown('### Metricas de los Datos')
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3= st.columns(3)
         #col1.metric("Componente Biologico",(st.dataframe(especialidad_unica)))     
         with col1:
-            st.dataframe(
-                especialidad_unica,
-                column_config={
-                    "value": st.column_config.Column(
-                    "Comp. Biologico",
-                    help="Streamlit **widget** commands 🎈",
-                    width="medium",
-                    required=True,
-                    )
-                        },
-                hide_index=True,
-                use_container_width=True)
+            st.markdown(' N° Componentes')
+            st.dataframe(conteo_df,
+                 column_order=("componente_biologico", "conteo"),
+                 hide_index=True,
+                 width=None,
+                 column_config={
+                    "componente_biologico": st.column_config.TextColumn(
+                        "Comp. Biologico",
+                    ),
+                    "conteo": st.column_config.ProgressColumn(
+                        "N° registros",
+                        format="%f",
+                        min_value=0,
+                        max_value=max(conteo_df.conteo),
+                     )},use_container_width=True
+                 )
+        
         
         with col2:
-            st.metric("Diferencia Hoja Registr-Especie Vs Plantilla Fauna", df.shape[0] - df_especie)
-            if ((df.shape[0] - df_especie) == 0):
-                st.success('Parametro CORRECTO',icon='✅')
-            else:
-                st.error('Parametro INCORRECTO',icon='🚨')     
-        with col3:
-            st.metric("Registros duplicados-Plantilla Fauna", df.duplicated().sum())
+            st.metric("N° Registros", len(df))
             if (int(df.duplicated().sum()) == 0):
                 st.success('Parametro CORRECTO',icon='✅')
             else:
                 st.error('Parametro INCORRECTO',icon='🚨')
-        with col4:
+        with col3:
             st.metric("N° Campos Plantilla Fauna", conteo_campos_mastofauna, 
             help='El valor debe ser cero')
             if (conteo_campos_mastofauna == numero_campos_masto):
@@ -400,8 +398,34 @@ if uploaded_file:
                         color=groupby_column)
             st.plotly_chart(fig, use_container_width=True)
         with col2:
-            #st.markdown('### Tabla de datos')
-            st.dataframe(df_grouped.style.highlight_max(axis=0), use_container_width=True)
+            st.markdown('Tabla de registros')
+            st.dataframe(df_grouped,
+                 column_order=[groupby_column]+output_columns,
+                 hide_index=True,
+                 width=None,
+                 column_config={
+                    groupby_column: st.column_config.TextColumn(
+                        groupby_column,
+                    ),},use_container_width=True
+                 )
+        
+        
+        df_copia = df.copy()            
+        df_copia['fecha_evaluacion'] = pd.to_datetime(df_copia['fecha_evaluacion']).dt.date
+        chart = alt.Chart(df_copia).mark_bar().encode(
+                x=alt.X('fecha_evaluacion:T', title='Fecha de Evaluación'),
+                y=alt.Y('count()', title='Número de Registros'),
+                color=alt.Color('componente_biologico:N', title='Componente Biológico'),
+                tooltip=[alt.Tooltip('fecha_evaluacion:T', title='Fecha'), alt.Tooltip('count()', title='Número de Registros'), 'componente_biologico:N']
+            ).properties(
+                width=800,
+                height=400,
+                title='Distribución de Registros por Fecha y Componente Biológico'
+            )
+        st.altair_chart(chart, use_container_width=True)
+
+            
+
     with tab2:
         # Primera fila
         
@@ -434,8 +458,18 @@ if uploaded_file:
                 with st.expander('Tabla de datos'):
                     st.dataframe(encontrar_diferencias_edad(df_abundancia_edad_funcion))
         with col3:
-            st.markdown('#### Especies por catalogo')
-            
+            st.markdown('#### Componente-Localidad')
+            observaciones = ['Coincide' if coincide_con_control(fila, df_localidad) else 'No coincide' for _, fila in df_localidad_archivo.iterrows()]
+            df_localidad_archivo['Observaciones'] = observaciones
+            df_localidad_filtrada = df_localidad_archivo[df_localidad_archivo['Observaciones'] == 'No coincide']
+
+            st.metric("Diferencias encontradas", len(df_localidad_filtrada))
+            if (len(df_localidad_filtrada) == 0):
+                st.success('Parametro CORRECTO',icon='✅')
+            else:
+                st.error('Parametro INCORRECTO',icon='🚨')
+                with st.expander('Tabla de datos'):
+                    st.dataframe(df_localidad_filtrada.drop_duplicates())
         with col4:
             st.markdown('#### Motivo Intervencion')
             observaciones = ['Coincide' if coincide_con_control(fila, df_mot_interv) else 'No coincide' for _, fila in df_mot_interv_archivo.iterrows()]
