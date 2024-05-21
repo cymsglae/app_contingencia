@@ -161,18 +161,6 @@ def encontrar_diferencias_edad(df):
     # Devolver el nuevo DataFrame con solo las filas que tienen diferencias
     return df_filtrado
 
-# def encontrar_especies_no_registradas(df_control, df_campo):
-#     # Fusionar los dos dataframes basándose en el identificador y el nombre
-#     # 'indicator=True' añade una columna '_merge' que indica cómo se ha fusionado cada fila
-#     df_merged = pd.merge(df_campo, df_control, on=['id_esp', 'especie'], how='left', indicator=True)
-
-#     # Filtrar las filas que no coincidan en ambos dataframes
-#     df_no_coincidentes = df_merged[df_merged['_merge'] != 'both']
-
-#     # Eliminar la columna '_merge' ya que ya no se necesita
-#     df_resultante = df_no_coincidentes.drop(columns=['_merge'])
-#     return df_resultante
-
 def encontrar_especies_no_registradas2(df_control2, df_campo2):
     # Fusionar los dos dataframes basándose en el identificador y el nombre
     # 'indicator=True' añade una columna '_merge' que indica cómo se ha fusionado cada fila
@@ -266,7 +254,14 @@ if uploaded_file:
     df_localidad_archivo = df[['componente_localidad']]
     df_causa_prob_archivo = df[['causa_probable']]
     df_tipo_registro_archivo = df[['tipo_registro', 'componente_biologico']]
-    df_comportamiento_archivo = df[['comportamiento', 'componente_biologico']]
+    df_comportamiento_filtrado = df[
+    (df['condicion_animal'] != 'Muerto') &
+    (df['tipo_registro'] != 'Nido') &
+    (df['tipo_registro'] != 'Carcasa/Restos/Osamenta')
+    ]
+
+    df_comportamiento_archivo = df_comportamiento_filtrado[['comportamiento', 'componente_biologico']]
+
     
     ##Dataframe de especies
     df_filtrado_ornito = df[df['componente_biologico']=='Ornitofauna']
