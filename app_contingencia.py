@@ -204,6 +204,9 @@ st.caption('Todos los indicadores deben tener la confirmacion de correcto ✅ pa
 ##Carga de catalogos para controles de calidad mapeados en el archivo excel controles
 df_comportamiento = pd.read_excel('controles_app.xlsx', engine='openpyxl', sheet_name='comportamiento', index_col=False)
 df_mot_interv = pd.read_excel('controles_app.xlsx', engine='openpyxl', sheet_name='mot_interv', index_col=False)
+df_causa_prob = pd.read_excel('controles_app.xlsx', engine='openpyxl', sheet_name='causa_probable', index_col=False)
+df_tipo_registro = pd.read_excel('controles_app.xlsx', engine='openpyxl', sheet_name='tipo_registro', index_col=False)
+df_comportamiento = pd.read_excel('controles_app.xlsx', engine='openpyxl', sheet_name='comportamiento', index_col=False)
 df_area_operativa = pd.read_excel('controles_app.xlsx', engine='openpyxl', sheet_name='area_operativa', index_col=False)
 df_localidad = pd.read_excel('controles_app.xlsx', engine='openpyxl', sheet_name='localidad', index_col=False)
 df_herpetofauna = pd.read_excel('controles_app.xlsx', engine='openpyxl', sheet_name='herpetofauna', index_col=False)
@@ -261,20 +264,10 @@ if uploaded_file:
     ##Motivo intervencion
     df_mot_interv_archivo = df[['motivo_intervencion']]
     df_localidad_archivo = df[['componente_localidad']]
+    df_causa_prob_archivo = df[['causa_probable']]
+    df_tipo_registro_archivo = df[['tipo_registro', 'componente_biologico']]
+    df_comportamiento_archivo = df[['comportamiento', 'componente_biologico']]
     
-    ##Metodologia
-    #df_metodologia_archivo = df[['componente_biologico','metodologia']]
-    #df_metodologia_archivo.columns = ['comp_bio','metodologia']
-    ##Codigo estacion
-    #df_cod_estacion_archivo = df[['motivo_intervencion','codigo_estacion']]
-    #df_cod_estacion_archivo.columns = ['motiv_interv','cod_estacion']
-    ##Responsable
-    #df_responsable_archivo = df[['componente_biologico','codigo_responsable']]
-    #df_responsable_archivo.columns = ['comp_bio','iniciales']
-    ##Tipo de registro
-
-    df_tipo_registro_archivo = df_sin_registro[['componente_biologico','tipo_registro']]
-    df_tipo_registro_archivo.columns = ['comp_bio','tipo_registro']
     ##Dataframe de especies
     df_filtrado_ornito = df[df['componente_biologico']=='Ornitofauna']
     df_filtrado_ornito = df_filtrado_ornito[['id_esp','nombre_comun','globalid','componente_biologico']]
@@ -415,7 +408,7 @@ if uploaded_file:
         chart = alt.Chart(df_copia).mark_bar().encode(
                 x=alt.X('fecha_evaluacion:T', title='Fecha de Evaluación'),
                 y=alt.Y('count()', title='Número de Registros'),
-                color=alt.Color('componente_biologico:N', title='Componente Biológico'),
+                color=alt.Color('componente_biologico:N', title='Componente Biológico',),
                 tooltip=[alt.Tooltip('fecha_evaluacion:T', title='Fecha'), alt.Tooltip('count()', title='Número de Registros'), 'componente_biologico:N']
             ).properties(
                 width=800,
@@ -531,6 +524,47 @@ if uploaded_file:
                 st.error('Parametro INCORRECTO',icon='🚨')
                 with st.expander('Tabla de datos'):
                     st.dataframe(df_especies_no_registradas_ictio.drop_duplicates())
+        col_grupo_2_1, col_grupo_2_2, col_grupo_2_3 = st.columns(3)
+        with col_grupo_2_1:
+            st.markdown('#### Comportamiento')
+            observaciones = ['Coincide' if coincide_con_control(fila, df_comportamiento) else 'No coincide' for _, fila in df_comportamiento_archivo.iterrows()]
+            df_comportamiento_archivo['Observaciones'] = observaciones
+            df_comportamiento_archivo_filtrada = df_comportamiento_archivo[df_comportamiento_archivo['Observaciones'] == 'No coincide']
+            
+            st.metric("Diferencias encontradas", len(df_comportamiento_archivo_filtrada))
+            if (len(df_comportamiento_archivo_filtrada) == 0):
+                st.success('Parametro CORRECTO',icon='✅')
+            else:
+                st.error('Parametro INCORRECTO',icon='🚨')
+                with st.expander('Tabla de datos'):
+                    st.dataframe(df_comportamiento_archivo_filtrada.drop_duplicates())
+        with col_grupo_2_2:
+            st.markdown('#### Tipo Registro')
+            observaciones = ['Coincide' if coincide_con_control(fila, df_tipo_registro) else 'No coincide' for _, fila in df_tipo_registro_archivo.iterrows()]
+            df_tipo_registro_archivo['Observaciones'] = observaciones
+            df_tipo_registro_archivo_filtrada = df_tipo_registro_archivo[df_tipo_registro_archivo['Observaciones'] == 'No coincide']
+            
+            st.metric("Diferencias encontradas", len(df_tipo_registro_archivo_filtrada))
+            if (len(df_tipo_registro_archivo_filtrada) == 0):
+                st.success('Parametro CORRECTO',icon='✅')
+            else:
+                st.error('Parametro INCORRECTO',icon='🚨')
+                with st.expander('Tabla de datos'):
+                    st.dataframe(df_tipo_registro_archivo_filtrada.drop_duplicates())
+        with col_grupo_2_3:
+            
+            st.markdown('#### Causa Probable')
+            observaciones = ['Coincide' if coincide_con_control(fila, df_causa_prob) else 'No coincide' for _, fila in df_causa_prob_archivo.iterrows()]
+            df_causa_prob_archivo['Observaciones'] = observaciones
+            df_causa_prob_archivo_filtrada = df_causa_prob_archivo[df_causa_prob_archivo['Observaciones'] == 'No coincide']
+
+            st.metric("Diferencias encontradas", len(df_causa_prob_archivo_filtrada))
+            if (len(df_causa_prob_archivo_filtrada) == 0):
+                st.success('Parametro CORRECTO',icon='✅')
+            else:
+                st.error('Parametro INCORRECTO',icon='🚨')
+                with st.expander('Tabla de datos'):
+                    st.dataframe(df_causa_prob_archivo_filtrada.drop_duplicates())
             
             
             
