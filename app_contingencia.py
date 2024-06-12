@@ -224,7 +224,7 @@ if uploaded_file:
     df = pd.read_excel(uploaded_file, engine='openpyxl', sheet_name=nombre_hoja, parse_dates=['fecha_evaluacion'])
     df_especie = (pd.read_excel(uploaded_file, engine='openpyxl', sheet_name='AAQ_MSB_Contingencia_Fauna__0')).shape[0]
     ##Crear Dataframe Sin Registro en el campo observacion
-    df_sin_registro = df[df['observacion'] != 'Sin registro']
+    df_sin_registro = df[df['observacion_registro'] != 'Sin registro']
     ##Funcion para obtener valor unico de componente biologico
     df_inicial = df.copy()
     especialidad_unica = componente_biologico_unico(df,'componente_biologico')
@@ -290,8 +290,8 @@ if uploaded_file:
     total_abundancia_sexo = df_abundancia_sexo['suma_abundancia_sexo'].sum()
 
     ##Creacion dataframe abundancia edad
-    df_abundancia_edad = df[['n_adulto','n_juvenil','n_cria','n_huevo','n_indeterminado_edad','n_subadulto']]
-    df_abundancia_edad_funcion = df[['globalid','n_adulto','n_juvenil','n_cria','n_huevo','n_indeterminado_edad','n_subadulto','abundancia']]
+    df_abundancia_edad = df[['n_adulto','n_juvenil','n_cria_polluelo_larva','n_huevo','n_indeterminado_edad','n_subadulto']]
+    df_abundancia_edad_funcion = df[['globalid','n_adulto','n_juvenil','n_cria_polluelo_larva','n_huevo','n_indeterminado_edad','n_subadulto','abundancia']]
     df_abundancia_edad['suma_abundancia_edad'] = df_abundancia_edad.sum(axis=1)   
     
     #Variable suma abundancia edad
