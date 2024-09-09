@@ -398,19 +398,20 @@ if uploaded_file:
                  )
         
         
-        df_copia = df.copy()            
-        df_copia['fecha_evaluacion'] = pd.to_datetime(df_copia['fecha_evaluacion']).dt.date
-        chart = alt.Chart(df_copia).mark_bar().encode(
-                x=alt.X('fecha_evaluacion:T', title='Fecha de Evaluación'),
-                y=alt.Y('count()', title='Número de Registros'),
-                color=alt.Color('componente_biologico:N', title='Componente Biológico',),
-                tooltip=[alt.Tooltip('fecha_evaluacion:T', title='Fecha'), alt.Tooltip('count()', title='Número de Registros'), 'componente_biologico:N']
-            ).properties(
-                width=800,
-                height=400,
-                title='Distribución de Registros por Fecha y Componente Biológico'
-            )
-        st.altair_chart(chart, use_container_width=True)
+        # df_copia = df.copy()          
+        # df_copia['fecha_evaluacion'] = pd.to_datetime(df_copia['fecha_evaluacion'], errors='coerce', format='%m/%d/%Y')  
+        # #df_copia['fecha_evaluacion'] = pd.to_datetime(df_copia['fecha_evaluacion'], errors='coerce').dt.date
+        # chart = alt.Chart(df_copia).mark_bar().encode(
+        #         x=alt.X('yearmonth(fecha_evaluacion):T', title='Mes de Evaluación'),
+        #         y=alt.Y('count()', title='Número de Registros'),
+        #         color=alt.Color('componente_biologico:N', title='Componente Biológico',),
+        #         tooltip=[alt.Tooltip('fecha_evaluacion:T', title='Fecha'), alt.Tooltip('count()', title='Número de Registros'), 'componente_biologico:N']
+        #     ).properties(
+        #         width=800,
+        #         height=400,
+        #         title='Distribución de Registros por Fecha y Componente Biológico'
+        #     )
+        # st.altair_chart(chart, use_container_width=True)
 
             
 
