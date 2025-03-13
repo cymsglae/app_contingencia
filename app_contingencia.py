@@ -213,7 +213,7 @@ catalogo_especies_minimo2 = catalogo_especies[['id_esp', 'nombre_comun']]
 
 ## SIDEBAR
 uploaded_file = st.sidebar.file_uploader(' ***Elija la plantilla excel***', type='xlsx')
-nombre_hoja = 'Plantilla_Contingencia'
+nombre_hoja = 'Plantilla_contingencia'
 numero_campos_masto = 41
 
 if uploaded_file:
@@ -222,7 +222,7 @@ if uploaded_file:
     #sheets_pd = pd.DataFrame(sheets)    
     #st.sidebar.dataframe(sheets_pd.values[1:])    
     df = pd.read_excel(uploaded_file, engine='openpyxl', sheet_name=nombre_hoja, parse_dates=['fecha_evaluacion'])
-    df_especie = (pd.read_excel(uploaded_file, engine='openpyxl', sheet_name='AAQ_MSB_Contingencia_Fauna__0')).shape[0]
+    df_especie = (pd.read_excel(uploaded_file, engine='openpyxl', sheet_name='Plantilla_contingencia')).shape[0]
     ##Crear Dataframe Sin Registro en el campo observacion
     df_sin_registro = df[df['observacion_registro'] != 'Sin registro']
     ##Funcion para obtener valor unico de componente biologico
