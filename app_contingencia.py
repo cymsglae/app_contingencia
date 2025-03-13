@@ -214,7 +214,7 @@ catalogo_especies_minimo2 = catalogo_especies[['id_esp', 'nombre_comun']]
 ## SIDEBAR
 uploaded_file = st.sidebar.file_uploader(' ***Elija la plantilla excel***', type='xlsx')
 nombre_hoja = 'Plantilla_contingencia'
-numero_campos_masto = 41
+numero_campos_masto = 43
 
 if uploaded_file:
     xls = pd.ExcelFile(uploaded_file)
